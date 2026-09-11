@@ -71,6 +71,11 @@ export default function App() {
   const missingExercisesCurrent = getMissingExercises(currentWeek, currentCycle);
   const isCurrentWeekComplete = missingExercisesCurrent.length === 0;
 
+  // Прогресс заполнения для просматриваемой недели (viewWeek, viewCycle)
+  const viewMissingExercises = getMissingExercises(viewWeek, viewCycle);
+  const viewCompletedCount = exercises.length - viewMissingExercises.length;
+  const viewProgressPercent = Math.round((viewCompletedCount / exercises.length) * 100);
+
   // Состояние модального окна уведомления/подтверждения в розовом стиле
   const [modalState, setModalState] = useState(null);
   // modalState: { title, message, items: [], type: 'alert' | 'confirm', onConfirm?: () => void }
@@ -365,6 +370,27 @@ export default function App() {
 
       {/* Основной контент */}
       <main className="max-w-xl mx-auto px-3 pt-2">
+        {/* Полоска прогресса выполнения недели с округленными углами и гармоничными розовыми оттенками */}
+        <div className="mb-3 bg-pink-100/70 border border-pink-200/80 rounded-2xl p-2.5 shadow-2xs">
+          <div className="flex items-center justify-between text-xs mb-1.5 px-0.5 font-sans">
+            <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-pink-500 inline-block animate-pulse"></span>
+              <span>Прогресс недели</span>
+            </span>
+            <span className="font-bold text-pink-700 font-display text-[11px]">
+              {viewCompletedCount} из {exercises.length} ({viewProgressPercent}%)
+            </span>
+          </div>
+
+          {/* Сама закругленная полоска */}
+          <div className="w-full h-2.5 bg-white/90 rounded-full overflow-hidden p-0.5 border border-pink-200/60 shadow-inner">
+            <div
+              className="h-full bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 rounded-full transition-all duration-500 ease-out shadow-xs"
+              style={{ width: `${Math.max(viewProgressPercent > 0 ? 4 : 0, viewProgressPercent)}%` }}
+            ></div>
+          </div>
+        </div>
+
         {Object.entries(groupedExercises).map(([dayTitle, dayExercises]) => (
           <section key={dayTitle} className="mb-4">
             {/* Компактный заголовок дня */}

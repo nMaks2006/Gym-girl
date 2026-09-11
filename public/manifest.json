@@ -1,7 +1,7 @@
 {
-  "name": "Дневник тренировок",
-  "short_name": "Тренировки",
-  "description": "Персональный дневник тренировок с прогрессивной перегрузкой",
+  "name": "GYM GIRL",
+  "short_name": "GYM GIRL",
+  "description": "Персональный дневник тренировок GYM GIRL",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#fdf2f8",
