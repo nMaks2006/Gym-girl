@@ -280,11 +280,6 @@ export default function App() {
       {/* Шапка (Компактная, Glassmorphism) */}
       <header className="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-pink-100 px-3 pt-[max(env(safe-area-inset-top),0.5rem)] pb-2 shadow-xs flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 min-w-0 flex-1">
-          {/* Аватарка котенка */}
-          <div className="w-8 h-8 rounded-full bg-pink-100 border border-pink-200 shadow-2xs overflow-hidden shrink-0 flex items-center justify-center">
-            <img src="/apple-touch-icon.png" alt="Workout cat" className="w-full h-full object-cover scale-110" />
-          </div>
-
           {/* Кнопка выбора цикла в едином розовом стиле с красивым шрифтом */}
           <button
             type="button"
