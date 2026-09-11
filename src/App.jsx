@@ -14,11 +14,47 @@ export default function App() {
     updateFact,
     removeFact,
     getFact,
-    completeWeek
+    completeWeek,
+    revertToPreviousWeek
   } = useWorkoutState();
 
   // Локальное состояние веса ввода для каждого упражнения (ключ: cycle_week_exId)
   const [inputWeights, setInputWeights] = useState({});
+
+  // Состояние модального окна уведомления/подтверждения в розовом стиле
+  const [modalState, setModalState] = useState(null);
+  // modalState: { title, subtitle, notice, items: [], type: 'alert' | 'confirm', confirmText?: string, onConfirm?: () => void }
+
+  // Состояние стильного модального окна выбора ('cycle' | 'week' | null)
+  const [pickerModal, setPickerModal] = useState(null);
+
+  const canRevert = currentCycle > 1 || currentWeek > 1;
+
+  const handleRevertWeek = () => {
+    if (!canRevert) return;
+
+    const prevWeek = currentWeek > 1 ? currentWeek - 1 : 6;
+    const prevCycle = currentWeek > 1 ? currentCycle : currentCycle - 1;
+    const prevWeekTitle = WEEK_TITLES[prevWeek] || `Неделя ${prevWeek}`;
+    const currentWeekTitle = WEEK_TITLES[currentWeek] || `Неделя ${currentWeek}`;
+
+    setModalState({
+      title: 'Откат на предыдущую неделю',
+      subtitle: `Возврат к: ${prevWeekTitle} (Цикл ${prevCycle})`,
+      notice: (
+        <span>
+          Данные текущей недели (<strong className="font-bold text-pink-900">«{currentWeekTitle}»</strong>, Цикл {currentCycle}) будут <strong className="font-bold text-rose-600">сброшены</strong>, чтобы вы могли ввести веса заново.
+        </span>
+      ),
+      type: 'confirm',
+      confirmText: 'Откатить',
+      onConfirm: () => {
+        revertToPreviousWeek();
+        setInputWeights({});
+        setModalState(null);
+      }
+    });
+  };
 
   // Проверка: находится ли пользователь в актуальном этапе тренировок
   const isCurrentView = viewCycle === currentCycle && viewWeek === currentWeek;
@@ -52,12 +88,6 @@ export default function App() {
   const missingExercisesCurrent = getMissingExercises(currentWeek, currentCycle);
   const isCurrentWeekComplete = missingExercisesCurrent.length === 0;
 
-  // Состояние модального окна уведомления/подтверждения в розовом стиле
-  const [modalState, setModalState] = useState(null);
-  // modalState: { title, message, items: [], type: 'alert' | 'confirm', onConfirm?: () => void }
-
-  // Состояние стильного модального окна выбора ('cycle' | 'week' | null)
-  const [pickerModal, setPickerModal] = useState(null);
 
   const handleFinishWeek = () => {
     const missing = getMissingExercises(currentWeek, currentCycle);
@@ -291,8 +321,22 @@ export default function App() {
           </button>
         </div>
 
-        {/* Кнопка "Завершить неделю" (рендерится ТОЛЬКО в актуальном режиме) */}
-        <div className="shrink-0 flex items-center">
+        {/* Действия в шапке (Откат / Завершить неделю / К текущей) */}
+        <div className="shrink-0 flex items-center gap-1.5">
+          {canRevert && isCurrentView && (
+            <button
+              type="button"
+              onClick={handleRevertWeek}
+              title={`Откатиться на ${currentWeek > 1 ? `Неделю ${currentWeek - 1}` : `Неделю 6 (Цикл ${currentCycle - 1})`} со сбросом текущей`}
+              className="h-8 px-2 rounded-xl bg-pink-100/90 hover:bg-pink-200/90 active:scale-95 text-pink-700 border border-pink-200 text-xs font-semibold flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
+            >
+              <svg className="w-3.5 h-3.5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+              </svg>
+              <span className="hidden sm:inline">Откат</span>
+            </button>
+          )}
+
           {isCurrentView ? (
             <button
               onClick={handleFinishWeek}
@@ -301,7 +345,7 @@ export default function App() {
                   ? "Все упражнения заполнены! Нажмите для перехода"
                   : `Заполнено ${exercises.length - missingExercisesCurrent.length} из ${exercises.length}. Выберите режим сложности для всех упражнений.`
               }
-              className={`h-8 transition-all font-semibold px-2.5 rounded-lg shadow-xs text-xs flex items-center gap-1 cursor-pointer active:scale-95 ${
+              className={`h-8 transition-all font-semibold px-2.5 rounded-xl shadow-xs text-xs flex items-center gap-1 cursor-pointer active:scale-95 ${
                 isCurrentWeekComplete
                   ? 'bg-pink-600 hover:bg-pink-700 text-white'
                   : 'bg-pink-100 hover:bg-pink-200 text-pink-700 border border-pink-200'
@@ -324,7 +368,7 @@ export default function App() {
                 setViewWeek(currentWeek);
               }}
               title="Вернуться к актуальной неделе"
-              className="h-8 bg-pink-100 hover:bg-pink-200 active:scale-95 transition-all text-pink-700 font-semibold px-2.5 rounded-lg text-xs shadow-2xs flex items-center gap-1 cursor-pointer"
+              className="h-8 bg-pink-100 hover:bg-pink-200 active:scale-95 transition-all text-pink-700 font-semibold px-2.5 rounded-xl text-xs shadow-2xs flex items-center gap-1 cursor-pointer"
             >
               <span>К текущей ↩</span>
             </button>
@@ -592,7 +636,7 @@ export default function App() {
                     onClick={modalState.onConfirm}
                     className="flex-1 py-2 text-xs font-semibold text-white bg-pink-600 hover:bg-pink-700 active:scale-95 shadow-xs rounded-xl transition-all cursor-pointer text-center"
                   >
-                    Перейти
+                    {modalState.confirmText || 'Перейти'}
                   </button>
                 </>
               ) : (

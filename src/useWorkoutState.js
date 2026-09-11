@@ -288,6 +288,51 @@ export function useWorkoutState() {
   };
 
   /**
+   * Откатиться на предыдущую неделю со сбросом данных текущей недели.
+   * Если currentWeek > 1, переходит на currentWeek - 1 в этом же цикле.
+   * Если currentWeek === 1 и currentCycle > 1, переходит на 6-ю пиковую неделю предыдущего цикла (currentCycle - 1).
+   * Очищает сохраненные данные (вес и сложность) для покидаемой недели.
+   */
+  const revertToPreviousWeek = () => {
+    // Нельзя откатиться назад дальше 1-й недели 1-го цикла
+    if (currentCycle === 1 && currentWeek === 1) {
+      return false;
+    }
+
+    const targetWeek = currentWeek > 1 ? currentWeek - 1 : 6;
+    const targetCycle = currentWeek > 1 ? currentCycle : currentCycle - 1;
+
+    // Сбрасываем факты текущей недели (которую мы покидаем при откате)
+    setWorkoutData((prevData) => {
+      const nextData = { ...prevData };
+      exercises.forEach((ex) => {
+        const factKey = `fact_${currentCycle}_${currentWeek}_${ex.id}`;
+        delete nextData[factKey];
+      });
+
+      if (nextData[currentCycle]) {
+        const cycleData = { ...nextData[currentCycle] };
+        exercises.forEach((ex) => {
+          if (cycleData[ex.id]) {
+            const exerciseData = { ...cycleData[ex.id] };
+            delete exerciseData[currentWeek];
+            cycleData[ex.id] = exerciseData;
+          }
+        });
+        nextData[currentCycle] = cycleData;
+      }
+      return nextData;
+    });
+
+    // Переключаем текущую неделю и цикл
+    setCurrentCycleState(targetCycle);
+    setCurrentWeekState(targetWeek);
+    setViewCycle(targetCycle);
+    setViewWeek(targetWeek);
+    return true;
+  };
+
+  /**
    * Полностью очистить базу данных по весу и сбросить прогресс тренировок
    */
   const resetWorkoutData = () => {
@@ -414,6 +459,7 @@ export function useWorkoutState() {
     removeFact,
     getFact,
     completeWeek,
+    revertToPreviousWeek,
     resetWorkoutData,
     calculateNextWeekPlan,
     mround,
