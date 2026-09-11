@@ -14,29 +14,11 @@ export default function App() {
     updateFact,
     removeFact,
     getFact,
-    completeWeek,
-    resetWorkoutData
+    completeWeek
   } = useWorkoutState();
 
   // Локальное состояние веса ввода для каждого упражнения (ключ: cycle_week_exId)
   const [inputWeights, setInputWeights] = useState({});
-
-  const handleResetData = () => {
-    setModalState({
-      title: 'Сброс всех данных',
-      message: (
-        <span>
-          Вы действительно хотите <strong className="font-bold text-rose-600">полностью очистить историю тренировок и сохраненные веса</strong>? Все значения вернутся к исходному состоянию (Цикл 1, Неделя 1).
-        </span>
-      ),
-      type: 'confirm',
-      onConfirm: () => {
-        resetWorkoutData();
-        setInputWeights({});
-        setModalState(null);
-      }
-    });
-  };
 
   // Проверка: находится ли пользователь в актуальном этапе тренировок
   const isCurrentView = viewCycle === currentCycle && viewWeek === currentWeek;
@@ -539,23 +521,6 @@ export default function App() {
             </div>
           </section>
         ))}
-
-        {/* Кнопка сброса базы данных / очистки весов */}
-        <div className="pt-4 pb-8 flex flex-col items-center justify-center text-center">
-          <button
-            type="button"
-            onClick={handleResetData}
-            className="text-xs font-semibold text-rose-500 hover:text-rose-700 bg-rose-50/80 hover:bg-rose-100/90 border border-rose-200/80 px-4 py-2 rounded-2xl transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-            <span>Очистить базу данных по весу</span>
-          </button>
-          <p className="text-[10px] text-slate-400 mt-1.5">
-            Сбрасывает все введенные веса и начинает с 1-й недели
-          </p>
-        </div>
       </main>
 
       {/* Модальное окно уведомлений в стилистике приложения (фон bg-pink-50, розовая рамка border-pink-300, более круглые углы rounded-3xl) */}
