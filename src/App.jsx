@@ -15,7 +15,8 @@ export default function App() {
     removeFact,
     getFact,
     completeWeek,
-    revertToPreviousWeek
+    revertToPreviousWeek,
+    resetWeekData
   } = useWorkoutState();
 
   // Локальное состояние веса ввода для каждого упражнения (ключ: cycle_week_exId)
@@ -36,6 +37,30 @@ export default function App() {
   }, [viewCycle, viewWeek]);
 
   const canRevert = currentCycle > 1 || currentWeek > 1;
+
+  const handleResetWeek = (targetWeek = viewWeek, targetCycle = viewCycle) => {
+    const weekTitle = WEEK_TITLES[targetWeek] || `Неделя ${targetWeek}`;
+
+    setModalState({
+      title: 'Сброс недели',
+      subtitle: `Сброс уровней и весов для: ${weekTitle} (Цикл ${targetCycle})`,
+      notice: (
+        <span>
+          Все сохранённые веса и выбранные <strong className="font-bold text-pink-900">уровни сложности</strong> для 1-й недели будут <strong className="font-bold text-rose-600">сброшены</strong>. Вы сможете ввести их заново.
+        </span>
+      ),
+      type: 'confirm',
+      confirmText: 'Сбросить',
+      onConfirm: () => {
+        resetWeekData(targetWeek, targetCycle);
+        setInputWeights({});
+        setModalState(null);
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        if (document.documentElement) document.documentElement.scrollTop = 0;
+        if (document.body) document.body.scrollTop = 0;
+      }
+    });
+  };
 
   const handleRevertWeek = () => {
     if (!canRevert) return;
@@ -565,6 +590,25 @@ export default function App() {
           </section>
         ))}
 
+        {/* Кнопка "Сбросить неделю" для 1-й недели 1-го цикла */}
+        {viewCycle === 1 && viewWeek === 1 && (
+          <div className="pt-4 pb-8 flex flex-col items-center justify-center">
+            <button
+              type="button"
+              onClick={() => handleResetWeek(1, 1)}
+              className="h-10 px-5 rounded-2xl bg-white/90 hover:bg-white active:scale-95 text-pink-700 border border-pink-200 text-xs font-semibold flex items-center gap-2 shadow-2xs hover:shadow-xs transition-all cursor-pointer font-sans"
+            >
+              <svg className="w-4 h-4 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>Сбросить уровни и веса</span>
+            </button>
+            <p className="text-[11px] text-pink-400 mt-1.5 text-center">
+              Сбросит все выбранные уровни сложности и введённые веса 1-й недели
+            </p>
+          </div>
+        )}
+
         {/* Кнопка "Вернуться" внизу страницы */}
         {canRevert && isCurrentView && (
           <div className="pt-4 pb-8 flex flex-col items-center justify-center">
@@ -601,7 +645,13 @@ export default function App() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2.5"
-                    d={modalState.confirmText === 'Вернуться' ? "M11 19l-7-7 7-7m8 14l-7-7 7-7" : "M13 7l5 5m0 0l-5 5m5-5H6"}
+                    d={
+                      modalState.confirmText === 'Вернуться'
+                        ? "M11 19l-7-7 7-7m8 14l-7-7 7-7"
+                        : modalState.confirmText === 'Сбросить'
+                        ? "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                        : "M13 7l5 5m0 0l-5 5m5-5H6"
+                    }
                   />
                 </svg>
               ) : (

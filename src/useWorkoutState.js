@@ -370,6 +370,35 @@ export function useWorkoutState() {
   };
 
   /**
+   * Сбросить данные конкретной недели (веса и уровни сложности)
+   */
+  const resetWeekData = (week = viewWeek, cycle = viewCycle) => {
+    const targetWeek = Number(week) || 1;
+    const targetCycle = Number(cycle) || 1;
+
+    setWorkoutData((prevData) => {
+      const nextData = { ...prevData };
+      exercises.forEach((ex) => {
+        const factKey = `fact_${targetCycle}_${targetWeek}_${ex.id}`;
+        delete nextData[factKey];
+      });
+
+      if (nextData[targetCycle]) {
+        const cycleData = { ...nextData[targetCycle] };
+        exercises.forEach((ex) => {
+          if (cycleData[ex.id]) {
+            const exerciseData = { ...cycleData[ex.id] };
+            delete exerciseData[targetWeek];
+            cycleData[ex.id] = exerciseData;
+          }
+        });
+        nextData[targetCycle] = cycleData;
+      }
+      return nextData;
+    });
+  };
+
+  /**
    * Полностью очистить базу данных по весу и сбросить прогресс тренировок
    */
   const resetWorkoutData = () => {
@@ -497,6 +526,7 @@ export function useWorkoutState() {
     getFact,
     completeWeek,
     revertToPreviousWeek,
+    resetWeekData,
     resetWorkoutData,
     calculateNextWeekPlan,
     mround,
