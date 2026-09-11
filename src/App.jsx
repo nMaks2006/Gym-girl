@@ -14,30 +14,11 @@ export default function App() {
     updateFact,
     removeFact,
     getFact,
-    completeWeek,
-    resetWorkoutData
+    completeWeek
   } = useWorkoutState();
 
   // Локальное состояние веса ввода для каждого упражнения (ключ: cycle_week_exId)
   const [inputWeights, setInputWeights] = useState({});
-
-  const handleResetData = () => {
-    setModalState({
-      title: 'Сбросить все тренировки?',
-      subtitle: 'Очистка сохраненных данных',
-      notice: (
-        <span>
-          Все записанные веса и история будут удалены. Приложение начнется с <strong className="font-bold text-pink-900">Цикла 1, Недели 1</strong> с базовым плановым весом.
-        </span>
-      ),
-      type: 'confirm',
-      onConfirm: () => {
-        resetWorkoutData();
-        setInputWeights({});
-        setModalState(null);
-      }
-    });
-  };
 
   // Проверка: находится ли пользователь в актуальном этапе тренировок
   const isCurrentView = viewCycle === currentCycle && viewWeek === currentWeek;
@@ -70,11 +51,6 @@ export default function App() {
 
   const missingExercisesCurrent = getMissingExercises(currentWeek, currentCycle);
   const isCurrentWeekComplete = missingExercisesCurrent.length === 0;
-
-  // Прогресс заполнения для просматриваемой недели (viewWeek, viewCycle)
-  const viewMissingExercises = getMissingExercises(viewWeek, viewCycle);
-  const viewCompletedCount = exercises.length - viewMissingExercises.length;
-  const viewProgressPercent = Math.round((viewCompletedCount / exercises.length) * 100);
 
   // Состояние модального окна уведомления/подтверждения в розовом стиле
   const [modalState, setModalState] = useState(null);
@@ -315,20 +291,8 @@ export default function App() {
           </button>
         </div>
 
-        {/* Кнопка "Завершить неделю" и кнопка "Сброс" */}
-        <div className="shrink-0 flex items-center gap-1.5">
-          {/* Кнопка полного сброса данных */}
-          <button
-            type="button"
-            onClick={handleResetData}
-            title="Сбросить все тренировки до исходного состояния"
-            className="h-8 w-8 rounded-xl bg-pink-50/90 hover:bg-rose-100/80 active:scale-95 text-slate-400 hover:text-rose-600 border border-pink-200/80 flex items-center justify-center transition-all cursor-pointer shadow-2xs shrink-0"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          </button>
-
+        {/* Кнопка "Завершить неделю" (рендерится ТОЛЬКО в актуальном режиме) */}
+        <div className="shrink-0 flex items-center">
           {isCurrentView ? (
             <button
               onClick={handleFinishWeek}
@@ -370,27 +334,6 @@ export default function App() {
 
       {/* Основной контент */}
       <main className="max-w-xl mx-auto px-3 pt-2">
-        {/* Полоска прогресса выполнения недели с округленными углами и гармоничными розовыми оттенками */}
-        <div className="mb-3 bg-pink-100/70 border border-pink-200/80 rounded-2xl p-2.5 shadow-2xs">
-          <div className="flex items-center justify-between text-xs mb-1.5 px-0.5 font-sans">
-            <span className="font-semibold text-slate-700 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-pink-500 inline-block animate-pulse"></span>
-              <span>Прогресс недели</span>
-            </span>
-            <span className="font-bold text-pink-700 font-display text-[11px]">
-              {viewCompletedCount} из {exercises.length} ({viewProgressPercent}%)
-            </span>
-          </div>
-
-          {/* Сама закругленная полоска */}
-          <div className="w-full h-2.5 bg-white/90 rounded-full overflow-hidden p-0.5 border border-pink-200/60 shadow-inner">
-            <div
-              className="h-full bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 rounded-full transition-all duration-500 ease-out shadow-xs"
-              style={{ width: `${Math.max(viewProgressPercent > 0 ? 4 : 0, viewProgressPercent)}%` }}
-            ></div>
-          </div>
-        </div>
-
         {Object.entries(groupedExercises).map(([dayTitle, dayExercises]) => (
           <section key={dayTitle} className="mb-4">
             {/* Компактный заголовок дня */}
