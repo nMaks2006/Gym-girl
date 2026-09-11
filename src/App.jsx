@@ -42,11 +42,15 @@ export default function App() {
     const weekTitle = WEEK_TITLES[targetWeek] || `Неделя ${targetWeek}`;
 
     setModalState({
-      title: 'Сброс недели',
-      subtitle: `Сброс уровней и весов для: ${weekTitle} (Цикл ${targetCycle})`,
+      title: 'Сброс 1-й недели',
+      subtitle: (
+        <span>
+          Сброс уровней сложности и весов для <strong className="font-bold font-display text-pink-900 bg-pink-100/80 px-1.5 py-0.5 rounded-md">{weekTitle}</strong> (Цикл {targetCycle})
+        </span>
+      ),
       notice: (
         <span>
-          Все сохранённые веса и выбранные <strong className="font-bold text-pink-900">уровни сложности</strong> для 1-й недели будут <strong className="font-bold text-rose-600">сброшены</strong>. Вы сможете ввести их заново.
+          Все сохранённые веса и выбранные <strong className="font-bold font-display text-pink-900 bg-pink-100/80 px-1.5 py-0.5 rounded-md">уровни сложности</strong> для 1-й недели будут <strong className="font-bold font-display text-rose-600 bg-rose-100/70 px-1.5 py-0.5 rounded-md">сброшены</strong>. Вы сможете пройти её заново.
         </span>
       ),
       type: 'confirm',
@@ -72,10 +76,14 @@ export default function App() {
 
     setModalState({
       title: 'Возврат на предыдущую неделю',
-      subtitle: `Возврат к: ${prevWeekTitle} (Цикл ${prevCycle})`,
+      subtitle: (
+        <span>
+          Возврат к <strong className="font-bold font-display text-pink-900 bg-pink-100/80 px-1.5 py-0.5 rounded-md">{prevWeekTitle}</strong> (Цикл {prevCycle})
+        </span>
+      ),
       notice: (
         <span>
-          Данные текущей недели (<strong className="font-bold text-pink-900">«{currentWeekTitle}»</strong>, Цикл {currentCycle}) будут <strong className="font-bold text-rose-600">сброшены</strong>, чтобы вы могли ввести веса заново.
+          Данные текущей недели (<strong className="font-bold font-display text-pink-900 bg-pink-100/80 px-1.5 py-0.5 rounded-md">«{currentWeekTitle}»</strong>, Цикл {currentCycle}) будут <strong className="font-bold font-display text-rose-600 bg-rose-100/70 px-1.5 py-0.5 rounded-md">сброшены</strong>, а следующая неделя будет <strong className="font-bold font-display text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded-md">заблокирована 🔒</strong>.
         </span>
       ),
       type: 'confirm',
@@ -123,7 +131,6 @@ export default function App() {
   const missingExercisesCurrent = getMissingExercises(currentWeek, currentCycle);
   const isCurrentWeekComplete = missingExercisesCurrent.length === 0;
 
-
   const handleFinishWeek = () => {
     const missing = getMissingExercises(currentWeek, currentCycle);
     if (missing.length > 0) {
@@ -131,12 +138,12 @@ export default function App() {
         title: 'Нельзя перейти на следующую неделю',
         subtitle: (
           <span>
-            Осталось заполнить: <strong className="font-bold text-pink-900">{missing.length}</strong> из <strong className="font-bold text-pink-900">{exercises.length}</strong> упражнений
+            Осталось заполнить: <strong className="font-bold font-display text-pink-900 bg-pink-100/80 px-1.5 py-0.5 rounded-md">{missing.length}</strong> из <strong className="font-bold font-display text-pink-900 bg-pink-100/80 px-1.5 py-0.5 rounded-md">{exercises.length}</strong> упражнений
           </span>
         ),
         notice: (
           <span>
-            Выберите <strong className="font-semibold text-slate-800">режим сложности</strong> или укажите <strong className="font-semibold text-slate-800">вес</strong> для каждого упражнения:
+            Выберите <strong className="font-bold font-display text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded-md">режим сложности</strong> или укажите <strong className="font-bold font-display text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded-md">вес</strong> для каждого упражнения:
           </span>
         ),
         items: missing.map((e) => e.name),
@@ -148,43 +155,61 @@ export default function App() {
     const weekTitle = WEEK_TITLES[currentWeek] || `Неделя ${currentWeek}`;
     setModalState({
       title: 'Завершение недели',
-      message: (
+      subtitle: (
         <span>
-          Завершить <strong className="font-bold text-slate-800">«{weekTitle}»</strong> (<strong className="font-semibold text-pink-700">Цикл {currentCycle}</strong>) и перейти к следующему этапу тренировок?
+          Переход к следующему этапу тренировок
+        </span>
+      ),
+      notice: (
+        <span>
+          Завершить <strong className="font-bold font-display text-pink-900 bg-pink-100/80 px-1.5 py-0.5 rounded-md">«{weekTitle}»</strong> (<strong className="font-bold font-display text-pink-700 bg-pink-100/70 px-1.5 py-0.5 rounded-md">Цикл {currentCycle}</strong>) и перейти на следующую неделю?
         </span>
       ),
       type: 'confirm',
+      confirmText: 'Завершить',
       onConfirm: () => {
         completeWeek();
         setModalState(null);
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        if (document.documentElement) document.documentElement.scrollTop = 0;
+        if (document.body) document.body.scrollTop = 0;
       }
     });
   };
 
   const handleWeekChange = (targetWeek) => {
-    // Если пытаемся переключиться на будущую неделю в текущем цикле
+    // Если пытаемся переключиться на будущую неделю в текущем цикле — она заблокирована
     if (viewCycle === currentCycle && targetWeek > currentWeek) {
       const missing = getMissingExercises(currentWeek, currentCycle);
-      if (missing.length > 0) {
-        setModalState({
-          title: `Неделя ${targetWeek} пока недоступна`,
-          subtitle: (
-            <span>
-              Сначала завершите текущую <strong className="font-bold text-pink-900">Неделю {currentWeek}</strong>.
-            </span>
-          ),
-          notice: (
-            <span>
-              Не выбран режим сложности для <strong className="font-bold text-pink-900">{missing.length}</strong> упражнений:
-            </span>
-          ),
-          items: missing.map((e) => e.name),
-          type: 'alert'
-        });
-        return;
-      }
+      setModalState({
+        title: `Неделя ${targetWeek} заблокирована 🔒`,
+        subtitle: (
+          <span>
+            Сначала завершите текущую <strong className="font-bold font-display text-pink-900 bg-pink-100/80 px-1.5 py-0.5 rounded-md">«{WEEK_TITLES[currentWeek] || `Неделя ${currentWeek}`}»</strong>
+          </span>
+        ),
+        notice: (
+          <span>
+            {missing.length > 0 ? (
+              <span>
+                Осталось заполнить <strong className="font-bold font-display text-rose-600 bg-rose-100/70 px-1.5 py-0.5 rounded-md">{missing.length}</strong> из {exercises.length} упражнений.
+              </span>
+            ) : (
+              <span>
+                Все упражнения заполнены! Нажмите кнопку <strong className="font-bold font-display text-pink-700 bg-pink-100/80 px-1.5 py-0.5 rounded-md">«Завершить»</strong> в правом верхнем углу.
+              </span>
+            )}
+          </span>
+        ),
+        items: missing.map((e) => e.name),
+        type: 'alert'
+      });
+      return;
     }
     setViewWeek(targetWeek);
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
   };
 
   const handleWeightChange = (exId, value) => {
@@ -662,38 +687,38 @@ export default function App() {
             </div>
 
             {/* Контейнер текста: центрирован по ширине окна, но текст внутри аккуратно выровнен по левому краю */}
-            <div className="w-full text-left space-y-1.5 px-0.5">
-              <h3 className="text-base font-bold text-slate-900 leading-snug">
+            <div className="w-full text-left space-y-2 px-0.5 font-sans">
+              <h3 className="text-base font-display font-bold text-slate-900 leading-snug tracking-wide">
                 {modalState.title}
               </h3>
 
               {modalState.subtitle && (
-                <p className="text-xs text-pink-700 font-medium leading-relaxed">
+                <div className="text-xs text-pink-700 font-medium leading-relaxed font-sans">
                   {modalState.subtitle}
-                </p>
+                </div>
               )}
 
               {modalState.notice && (
-                <p className="text-xs text-slate-600 leading-relaxed pt-0.5">
+                <div className="text-xs text-slate-600 leading-relaxed pt-0.5 font-sans">
                   {modalState.notice}
-                </p>
+                </div>
               )}
             </div>
 
             {/* Сообщение или пояснение */}
             {modalState.message && (
-              <div className="w-full text-left text-xs text-slate-700 mt-3 p-3 bg-white/70 rounded-2xl border border-pink-200/80 leading-relaxed shadow-2xs">
+              <div className="w-full text-left text-xs text-slate-700 mt-3 p-3 bg-white/70 rounded-2xl border border-pink-200/80 leading-relaxed shadow-2xs font-sans">
                 {modalState.message}
               </div>
             )}
 
             {/* Список незаполненных упражнений */}
             {modalState.items && modalState.items.length > 0 && (
-              <div className="w-full mt-3 max-h-48 overflow-y-auto bg-white/75 border border-pink-200/90 rounded-2xl p-3 space-y-1.5 text-xs text-left shadow-2xs">
+              <div className="w-full mt-3 max-h-48 overflow-y-auto bg-white/75 border border-pink-200/90 rounded-2xl p-3 space-y-1.5 text-xs text-left shadow-2xs font-sans">
                 {modalState.items.map((itemName, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-slate-700">
                     <span className="w-1.5 h-1.5 rounded-full bg-pink-500 shrink-0"></span>
-                    <span className="font-medium truncate">{itemName}</span>
+                    <span className="font-display font-medium text-slate-800 truncate">{itemName}</span>
                   </div>
                 ))}
               </div>
@@ -705,13 +730,13 @@ export default function App() {
                 <>
                   <button
                     onClick={() => setModalState(null)}
-                    className="flex-1 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 bg-white/80 hover:bg-white border border-pink-200 rounded-xl transition-colors cursor-pointer text-center"
+                    className="flex-1 py-2 text-xs font-display font-semibold text-slate-600 hover:text-slate-800 bg-white/80 hover:bg-white border border-pink-200 rounded-xl transition-colors cursor-pointer text-center"
                   >
                     Отмена
                   </button>
                   <button
                     onClick={modalState.onConfirm}
-                    className="flex-1 py-2 text-xs font-semibold text-white bg-pink-600 hover:bg-pink-700 active:scale-95 shadow-xs rounded-xl transition-all cursor-pointer text-center"
+                    className="flex-1 py-2 text-xs font-display font-bold text-white bg-pink-600 hover:bg-pink-700 active:scale-95 shadow-xs rounded-xl transition-all cursor-pointer text-center tracking-wide"
                   >
                     {modalState.confirmText || 'Перейти'}
                   </button>
@@ -719,7 +744,7 @@ export default function App() {
               ) : (
                 <button
                   onClick={() => setModalState(null)}
-                  className="w-full py-2 text-xs font-bold text-white bg-pink-600 hover:bg-pink-700 active:scale-95 shadow-xs rounded-xl transition-all cursor-pointer text-center"
+                  className="w-full py-2 text-xs font-display font-bold text-white bg-pink-600 hover:bg-pink-700 active:scale-95 shadow-xs rounded-xl transition-all cursor-pointer text-center tracking-wide"
                 >
                   Понятно
                 </button>
@@ -822,7 +847,7 @@ export default function App() {
                 {[1, 2, 3, 4, 5, 6].map((weekNum) => {
                   const isSelected = weekNum === viewWeek;
                   const isFutureInCycle = viewCycle === currentCycle && weekNum > currentWeek;
-                  const isLocked = isFutureInCycle && !isCurrentWeekComplete;
+                  const isLocked = isFutureInCycle;
                   const isCurrent = viewCycle === currentCycle && weekNum === currentWeek;
 
                   return (
