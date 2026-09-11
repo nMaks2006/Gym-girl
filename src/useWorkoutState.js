@@ -149,18 +149,55 @@ export function calculateNextWeekPlan(...args) {
     raw = step;
   }
 
+  // Специальная шкала для кроссовера:
+  // Минимальный вес: 1.25 кг. Следующий шаг: 2.5 кг.
+  // Далее веса растут строго кратно 2.5 кг (2.5, 5, 7.5, 10, 12.5...).
+  // Никаких дробных частей вроде 6.25, 7.25, 3.75 после 2.5 не допускается.
+  const isCrossover = exercise?.equipment === 'кроссовер';
+
+  if (isCrossover) {
+    if (fact > 0 && fact < 2.0) {
+      // Пользователь делал 1.25 кг
+      if (week === 1 || week === 4) {
+        return 1.25;
+      }
+      if (growth <= 0) {
+        return 1.25;
+      }
+      if (diff === 'легко') {
+        return 5.0; // прыжок через шаг
+      }
+      return 2.5; // плавный рост: следующая плитка 2.5 кг
+    }
+  }
+
   // Округление (аналог MROUND): Math.round(raw / exercise.step) * exercise.step
-  const roundedWeight = Math.round(raw / step) * step;
+  let roundedWeight = Math.round(raw / step) * step;
+
+  if (isCrossover && step === 2.5) {
+    if (raw < 2.0 && raw > 0) {
+      roundedWeight = 1.25;
+    } else {
+      // Любой вес от 2.5 кг и выше строго кратен 2.5 кг (2.5, 5.0, 7.5, 10.0, ...)
+      roundedWeight = Math.max(2.5, Math.round(raw / 2.5) * 2.5);
+    }
+  }
 
   // Определение минимального допустимого веса:
-  // Если пользователь поднял факт меньше шага (например, 1.25 при step 2.5), минимальный вес не должен насильно завышаться.
-  const minAllowed = (fact > 0 && fact < step) ? fact : step;
+  const minAllowed = (isCrossover && step === 2.5)
+    ? (fact > 0 && fact < 2.0 ? 1.25 : (raw < 2.0 && raw > 0 ? 1.25 : 2.5))
+    : ((fact > 0 && fact < step) ? fact : step);
+
   let clampedResult = Math.max(minAllowed, isNaN(roundedWeight) ? minAllowed : roundedWeight);
 
   // Защита здравого смысла: при отметках 'очень тяжело' (откат) или 'тяжело' (прибавка 0)
   // расчетный вес ни при каких обстоятельствах не должен стать БОЛЬШЕ исходного факта!
   if (growth <= 0 && fact > 0 && (week === 2 || week === 3 || week === 5 || week === 6)) {
-    clampedResult = Math.min(fact, clampedResult);
+    if (isCrossover && fact === 2.5 && diff.startsWith("оч")) {
+      clampedResult = 1.25; // откат с 2.5 до 1.25
+    } else {
+      clampedResult = Math.min(fact, clampedResult);
+    }
   }
 
   const cleanResult = Math.round(clampedResult * 10000) / 10000;

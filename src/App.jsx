@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { exercises, INITIAL_CYCLE_1_PLAN } from './db.js';
 import { useWorkoutState, WEEK_TITLES, getScheme, calculateNextWeekPlan } from './useWorkoutState.js';
 
@@ -28,6 +28,13 @@ export default function App() {
   // Состояние стильного модального окна выбора ('cycle' | 'week' | null)
   const [pickerModal, setPickerModal] = useState(null);
 
+  // При переходе либо возвращении на другую неделю постоянно открываем окно в самом начале (скролл наверх)
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+  }, [viewCycle, viewWeek]);
+
   const canRevert = currentCycle > 1 || currentWeek > 1;
 
   const handleRevertWeek = () => {
@@ -39,7 +46,7 @@ export default function App() {
     const currentWeekTitle = WEEK_TITLES[currentWeek] || `Неделя ${currentWeek}`;
 
     setModalState({
-      title: 'Откат на предыдущую неделю',
+      title: 'Возврат на предыдущую неделю',
       subtitle: `Возврат к: ${prevWeekTitle} (Цикл ${prevCycle})`,
       notice: (
         <span>
@@ -47,11 +54,14 @@ export default function App() {
         </span>
       ),
       type: 'confirm',
-      confirmText: 'Откатить',
+      confirmText: 'Вернуться',
       onConfirm: () => {
         revertToPreviousWeek();
         setInputWeights({});
         setModalState(null);
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        if (document.documentElement) document.documentElement.scrollTop = 0;
+        if (document.body) document.body.scrollTop = 0;
       }
     });
   };
@@ -321,22 +331,8 @@ export default function App() {
           </button>
         </div>
 
-        {/* Действия в шапке (Откат / Завершить неделю / К текущей) */}
-        <div className="shrink-0 flex items-center gap-1.5">
-          {canRevert && isCurrentView && (
-            <button
-              type="button"
-              onClick={handleRevertWeek}
-              title={`Откатиться на ${currentWeek > 1 ? `Неделю ${currentWeek - 1}` : `Неделю 6 (Цикл ${currentCycle - 1})`} со сбросом текущей`}
-              className="h-8 px-2 rounded-xl bg-pink-100/90 hover:bg-pink-200/90 active:scale-95 text-pink-700 border border-pink-200 text-xs font-semibold flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
-            >
-              <svg className="w-3.5 h-3.5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-              </svg>
-              <span className="hidden sm:inline">Откат</span>
-            </button>
-          )}
-
+        {/* Кнопка "Завершить неделю" (рендерится ТОЛЬКО в актуальном режиме) */}
+        <div className="shrink-0 flex items-center">
           {isCurrentView ? (
             <button
               onClick={handleFinishWeek}
@@ -561,6 +557,25 @@ export default function App() {
             </div>
           </section>
         ))}
+
+        {/* Кнопка "Вернуться" внизу страницы */}
+        {canRevert && isCurrentView && (
+          <div className="pt-4 pb-8 flex flex-col items-center justify-center">
+            <button
+              type="button"
+              onClick={handleRevertWeek}
+              className="h-10 px-5 rounded-2xl bg-white/90 hover:bg-white active:scale-95 text-pink-700 border border-pink-200 text-xs font-semibold flex items-center gap-2 shadow-2xs hover:shadow-xs transition-all cursor-pointer font-sans"
+            >
+              <svg className="w-4 h-4 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+              </svg>
+              <span>Вернуться</span>
+            </button>
+            <p className="text-[11px] text-pink-400 mt-1.5 text-center">
+              Сбросит данные текущей недели и вернёт на {currentWeek > 1 ? `Неделю ${currentWeek - 1}` : `Неделю 6 (Цикл ${currentCycle - 1})`}
+            </p>
+          </div>
+        )}
       </main>
 
       {/* Модальное окно уведомлений в стилистике приложения (фон bg-pink-50, розовая рамка border-pink-300, более круглые углы rounded-3xl) */}
@@ -575,7 +590,12 @@ export default function App() {
             <div className="w-11 h-11 rounded-2xl bg-pink-100 border border-pink-200 flex items-center justify-center shrink-0 text-pink-600 mb-3 shadow-2xs">
               {modalState.type === 'confirm' ? (
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2.5"
+                    d={modalState.confirmText === 'Вернуться' ? "M11 19l-7-7 7-7m8 14l-7-7 7-7" : "M13 7l5 5m0 0l-5 5m5-5H6"}
+                  />
                 </svg>
               ) : (
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
