@@ -42,7 +42,7 @@ export default function App() {
     const weekTitle = WEEK_TITLES[targetWeek] || `Неделя ${targetWeek}`;
 
     setModalState({
-      title: 'Сброс 1-й недели',
+      title: 'Сброс недели',
       subtitle: (
         <span>
           Сброс уровней сложности и весов для <strong className="font-bold font-display text-pink-900 bg-pink-100/80 px-1.5 py-0.5 rounded-md">{weekTitle}</strong> (Цикл {targetCycle})
@@ -50,7 +50,7 @@ export default function App() {
       ),
       notice: (
         <span>
-          Все сохранённые веса и выбранные <strong className="font-bold font-display text-pink-900 bg-pink-100/80 px-1.5 py-0.5 rounded-md">уровни сложности</strong> для 1-й недели будут <strong className="font-bold font-display text-rose-600 bg-rose-100/70 px-1.5 py-0.5 rounded-md">сброшены</strong>. Вы сможете пройти её заново.
+          Все сохранённые веса и выбранные <strong className="font-bold font-display text-pink-900 bg-pink-100/80 px-1.5 py-0.5 rounded-md">уровни сложности</strong> для этой недели будут <strong className="font-bold font-display text-rose-600 bg-rose-100/70 px-1.5 py-0.5 rounded-md">сброшены</strong>. Вы сможете пройти её заново.
         </span>
       ),
       type: 'confirm',
@@ -135,15 +135,15 @@ export default function App() {
     const missing = getMissingExercises(currentWeek, currentCycle);
     if (missing.length > 0) {
       setModalState({
-        title: 'Нельзя перейти на следующую неделю',
+        title: 'Предупреждение перехода',
         subtitle: (
           <span>
-            Осталось заполнить: <strong className="font-bold font-display text-pink-900 bg-pink-100/80 px-1.5 py-0.5 rounded-md">{missing.length}</strong> из <strong className="font-bold font-display text-pink-900 bg-pink-100/80 px-1.5 py-0.5 rounded-md">{exercises.length}</strong> упражнений
+            Нельзя перейти: осталось заполнить <strong className="font-bold font-display text-rose-600 bg-rose-100/70 px-1.5 py-0.5 rounded-md">{missing.length}</strong> из <strong className="font-bold font-display text-pink-900 bg-pink-100/80 px-1.5 py-0.5 rounded-md">{exercises.length}</strong> упражнений
           </span>
         ),
         notice: (
           <span>
-            Выберите <strong className="font-bold font-display text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded-md">режим сложности</strong> или укажите <strong className="font-bold font-display text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded-md">вес</strong> для каждого упражнения:
+            Выберите <strong className="font-bold font-display text-pink-900 bg-pink-100/80 px-1.5 py-0.5 rounded-md">уровни сложности</strong> или укажите <strong className="font-bold font-display text-pink-900 bg-pink-100/80 px-1.5 py-0.5 rounded-md">веса</strong> для всех упражнений из списка ниже:
           </span>
         ),
         items: missing.map((e) => e.name),
@@ -154,15 +154,15 @@ export default function App() {
 
     const weekTitle = WEEK_TITLES[currentWeek] || `Неделя ${currentWeek}`;
     setModalState({
-      title: 'Завершение недели',
+      title: 'Переход на следующую неделю',
       subtitle: (
         <span>
-          Переход к следующему этапу тренировок
+          Завершение этапа для <strong className="font-bold font-display text-pink-900 bg-pink-100/80 px-1.5 py-0.5 rounded-md">«{weekTitle}»</strong> (<strong className="font-bold font-display text-pink-700 bg-pink-100/70 px-1.5 py-0.5 rounded-md">Цикл {currentCycle}</strong>)
         </span>
       ),
       notice: (
         <span>
-          Завершить <strong className="font-bold font-display text-pink-900 bg-pink-100/80 px-1.5 py-0.5 rounded-md">«{weekTitle}»</strong> (<strong className="font-bold font-display text-pink-700 bg-pink-100/70 px-1.5 py-0.5 rounded-md">Цикл {currentCycle}</strong>) и перейти на следующую неделю?
+          Все упражнения успешно заполнены. Подтвердите, что хотите <strong className="font-bold font-display text-pink-900 bg-pink-100/80 px-1.5 py-0.5 rounded-md">завершить неделю</strong> и перейти к следующему этапу тренировок.
         </span>
       ),
       type: 'confirm',
@@ -615,43 +615,42 @@ export default function App() {
           </section>
         ))}
 
-        {/* Кнопка "Сбросить неделю" для 1-й недели 1-го цикла */}
-        {viewCycle === 1 && viewWeek === 1 && (
-          <div className="pt-4 pb-8 flex flex-col items-center justify-center">
+        {/* Блок действий внизу страницы (Сброс веса и уровня для всех недель / Возврат) */}
+        <div className="pt-4 pb-8 flex flex-col items-center justify-center gap-2.5">
+          <div className="flex flex-wrap items-center justify-center gap-2.5">
+            {/* Кнопка "Сбросить уровни и веса" доступна для ВСЕХ недель */}
             <button
               type="button"
-              onClick={() => handleResetWeek(1, 1)}
-              className="h-10 px-5 rounded-2xl bg-white/90 hover:bg-white active:scale-95 text-pink-700 border border-pink-200 text-xs font-semibold flex items-center gap-2 shadow-2xs hover:shadow-xs transition-all cursor-pointer font-sans"
+              onClick={() => handleResetWeek(viewWeek, viewCycle)}
+              className="h-10 px-4 rounded-2xl bg-white/90 hover:bg-white active:scale-95 text-pink-700 border border-pink-200 text-xs font-semibold flex items-center gap-2 shadow-2xs hover:shadow-xs transition-all cursor-pointer font-sans"
             >
               <svg className="w-4 h-4 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               <span>Сбросить уровни и веса</span>
             </button>
-            <p className="text-[11px] text-pink-400 mt-1.5 text-center">
-              Сбросит все выбранные уровни сложности и введённые веса 1-й недели
-            </p>
-          </div>
-        )}
 
-        {/* Кнопка "Вернуться" внизу страницы */}
-        {canRevert && isCurrentView && (
-          <div className="pt-4 pb-8 flex flex-col items-center justify-center">
-            <button
-              type="button"
-              onClick={handleRevertWeek}
-              className="h-10 px-5 rounded-2xl bg-white/90 hover:bg-white active:scale-95 text-pink-700 border border-pink-200 text-xs font-semibold flex items-center gap-2 shadow-2xs hover:shadow-xs transition-all cursor-pointer font-sans"
-            >
-              <svg className="w-4 h-4 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-              </svg>
-              <span>Вернуться</span>
-            </button>
-            <p className="text-[11px] text-pink-400 mt-1.5 text-center">
-              Сбросит данные текущей недели и вернёт на {currentWeek > 1 ? `Неделю ${currentWeek - 1}` : `Неделю 6 (Цикл ${currentCycle - 1})`}
-            </p>
+            {/* Кнопка "Вернуться" (доступна при переходе назад в актуальном режиме) */}
+            {canRevert && isCurrentView && (
+              <button
+                type="button"
+                onClick={handleRevertWeek}
+                className="h-10 px-4 rounded-2xl bg-white/90 hover:bg-white active:scale-95 text-pink-700 border border-pink-200 text-xs font-semibold flex items-center gap-2 shadow-2xs hover:shadow-xs transition-all cursor-pointer font-sans"
+              >
+                <svg className="w-4 h-4 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                </svg>
+                <span>Вернуться</span>
+              </button>
+            )}
           </div>
-        )}
+
+          <p className="text-[11px] text-pink-400 text-center max-w-sm px-2 leading-relaxed font-sans">
+            {canRevert && isCurrentView
+              ? `«Сбросить» очистит веса текущей недели • «Вернуться» вернёт на ${currentWeek > 1 ? `Неделю ${currentWeek - 1}` : `Неделю 6 (Цикл ${currentCycle - 1})`}`
+              : `Сбросит все выбранные уровни сложности и введённые веса для ${WEEK_TITLES[viewWeek] || `Недели ${viewWeek}`}`}
+          </p>
+        </div>
       </main>
 
       {/* Модальное окно уведомлений в стилистике приложения (фон bg-pink-50, розовая рамка border-pink-300, более круглые углы rounded-3xl) */}
