@@ -138,7 +138,7 @@ export default function App() {
         title: 'Предупреждение перехода',
         subtitle: (
           <span>
-            Нельзя перейти: осталось заполнить <strong className="font-bold font-display text-rose-600 bg-rose-100/70 px-1.5 py-0.5 rounded-md">{missing.length}</strong> из <strong className="font-bold font-display text-pink-900 bg-pink-100/80 px-1.5 py-0.5 rounded-md">{exercises.length}</strong> упражнений
+            Нельзя перейти: осталось заполнить <strong className="font-bold font-display text-rose-600 bg-rose-100/70 px-1.5 py-0.5 rounded-md">{missing.length}</strong> из <strong className="font-bold font-display text-rose-600 bg-rose-100/70 px-1.5 py-0.5 rounded-md">{exercises.length}</strong> упражнений
           </span>
         ),
         notice: (
