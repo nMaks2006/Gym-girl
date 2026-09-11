@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { exercises, INITIAL_CYCLE_1_PLAN } from './db.js';
+import { exercises, INITIAL_CYCLE_1_PLAN, INITIAL_CYCLE_1_WEEK_2_PLAN } from './db.js';
 import { useWorkoutState, WEEK_TITLES, getScheme, calculateNextWeekPlan } from './useWorkoutState.js';
 
 export default function App() {
@@ -242,6 +242,13 @@ export default function App() {
           }
         }
         return null;
+      }
+
+      // Для 1-го цикла 2-й недели: используем предоставленный план
+      if (viewCycle === 1 && viewWeek === 2) {
+        if (INITIAL_CYCLE_1_WEEK_2_PLAN && INITIAL_CYCLE_1_WEEK_2_PLAN[ex.id] !== undefined) {
+          return INITIAL_CYCLE_1_WEEK_2_PLAN[ex.id];
+        }
       }
 
       // Недели 2, 3, 6: берем факт предыдущей недели (viewWeek - 1)
