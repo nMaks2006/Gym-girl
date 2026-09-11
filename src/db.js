@@ -8,7 +8,7 @@ export const INITIAL_CYCLE_1_PLAN = {
   ex_02: 11,   // Факт 6 нед: 12 кг (гантели, step 1) -> 12 * 0.9 = 10.8 -> 11 кг
   ex_03: 45,   // Факт 6 нед: 47.5 кг (тренажер, step 5) -> 47.5 * 0.9 = 42.75 -> 45 кг
   ex_04: 18,   // Факт 6 нед: 20 кг (гантели, step 1) -> 20 * 0.9 = 18 -> 18 кг
-  ex_05: 7.5,  // Факт 6 нед: 7 кг (кроссовер, шаг 2.5) -> 7 * 0.9 = 6.3 -> 7.5 кг
+  ex_05: 6.25, // Факт 6 нед: 7 кг (кроссовер, step 1.25) -> 7 * 0.9 = 6.3 -> 6.25 кг
   ex_06: 25,   // Факт 6 нед: 30 кг (кроссовер/блок, step 5) -> 30 * 0.9 = 27 -> 25 кг
   ex_07: 7.5,  // Факт 6 нед: 8 кг (кроссовер, step 2.5) -> 8 * 0.9 = 7.2 -> 7.5 кг
   ex_08: 17.5, // Факт 6 нед: 20 кг (штанга, step 2.5) -> 20 * 0.9 = 18 -> 17.5 кг
@@ -31,7 +31,6 @@ export const exercises = [
     maxJump: 5,
     step_kg: 2.5,
     max_jump_kg: 5,
-    minWeight: 1.25,
     schemes: { week_1: "3×15", week_2: "3×12", week_3: "3×12", week_4: "2×12", week_5: "3×10", week_6: "3×8" },
     unit_label: "кг",
     hint_text: "Пиши число, которое указано на тренажере"
@@ -80,11 +79,10 @@ export const exercises = [
     name: "Махи назад в кроссовере",
     day: "День 1 — Низ А",
     equipment: "кроссовер",
-    step: 2.5,
-    maxJump: 5,
-    step_kg: 2.5,
-    max_jump_kg: 5,
-    minWeight: 1.25,
+    step: 1.25,
+    maxJump: 2.5,
+    step_kg: 1.25,
+    max_jump_kg: 2.5,
     schemes: { week_1: "3×15", week_2: "3×12", week_3: "3×12", week_4: "2×12", week_5: "3×10", week_6: "3×8" },
     unit_label: "кг",
     hint_text: "Пиши число, которое указано на тренажере"
@@ -111,7 +109,6 @@ export const exercises = [
     maxJump: 5,
     step_kg: 2.5,
     max_jump_kg: 5,
-    minWeight: 1.25,
     schemes: { week_1: "3×15", week_2: "3×12", week_3: "3×12", week_4: "2×12", week_5: "3×10", week_6: "3×8" },
     unit_label: "кг",
     hint_text: "Пиши число, которое указано на тренажере"
@@ -138,7 +135,6 @@ export const exercises = [
     maxJump: 5,
     step_kg: 2.5,
     max_jump_kg: 5,
-    minWeight: 1.25,
     schemes: { week_1: "3×15", week_2: "3×12", week_3: "3×12", week_4: "2×12", week_5: "3×10", week_6: "3×8" },
     unit_label: "кг",
     hint_text: "Пиши число, которое указано на тренажере"
@@ -213,11 +209,10 @@ export const exercises = [
     name: "Отведение в кроссовере",
     day: "День 3 — Низ B",
     equipment: "кроссовер",
-    step: 2.5,
-    maxJump: 5,
-    step_kg: 2.5,
-    max_jump_kg: 5,
-    minWeight: 1.25,
+    step: 1.25,
+    maxJump: 2.5,
+    step_kg: 1.25,
+    max_jump_kg: 2.5,
     schemes: { week_1: "3×15", week_2: "3×12", week_3: "3×12", week_4: "2×12", week_5: "3×10", week_6: "3×8" },
     unit_label: "кг",
     hint_text: "Пиши число, которое указано на тренажере"

@@ -149,53 +149,12 @@ export function calculateNextWeekPlan(...args) {
     raw = step;
   }
 
-  // Особая шкала для кроссовера, где минимум 1.25 кг, а затем шаг идет строго по 2.5 кг (2.5, 5, 7.5, 10, ...):
-  const isCrossoverWithMin125 = exercise?.equipment === 'кроссовер' && exercise?.minWeight === 1.25;
+  // Округление (аналог MROUND): Math.round(raw / exercise.step) * exercise.step
+  const roundedWeight = Math.round(raw / step) * step;
 
-  let roundedWeight;
-  if (isCrossoverWithMin125) {
-    if (week === 1) {
-      // 1-я неделя: если raw <= 1.875, округляем к 1.25, иначе к кратному 2.5
-      if (raw < 1.875) {
-        roundedWeight = 1.25;
-      } else {
-        roundedWeight = Math.max(2.5, Math.round(raw / 2.5) * 2.5);
-      }
-    } else if (week === 4) {
-      // Разгрузка: 50% от недели 3
-      if (raw < 1.875) {
-        roundedWeight = 1.25;
-      } else {
-        roundedWeight = Math.max(1.25, Math.round(raw / 2.5) * 2.5);
-      }
-    } else {
-      // Обычные недели (2, 3, 5, 6):
-      if (fact === 1.25) {
-        if (diff === 'легко') {
-          // При 'легко' прибавка через шаг: 1.25 -> 5.0
-          roundedWeight = 5.0;
-        } else if (diff === 'нормально' || diff === 'норм') {
-          // При 'нормально' переход на следующую ступень: 1.25 -> 2.5
-          roundedWeight = 2.5;
-        } else {
-          // При 'тяжело' или 'очень тяжело' остаемся на минимуме 1.25
-          roundedWeight = 1.25;
-        }
-      } else if (fact === 2.5 && (diff === 'очень тяжело' || diff === 'оч. тяж' || diff === 'оч. тяж.' || diff === 'оч тяжело' || diff.startsWith('оч'))) {
-        // Откат с 2.5 кг на одну ступень вниз -> 1.25 кг (минимум тренажера)
-        roundedWeight = 1.25;
-      } else {
-        // Для всех остальных весов (>= 2.5 кг): шаг строго 2.5 кг
-        roundedWeight = Math.round(raw / 2.5) * 2.5;
-      }
-    }
-  } else {
-    // Стандартное округление (аналог MROUND): Math.round(raw / exercise.step) * exercise.step
-    roundedWeight = Math.round(raw / step) * step;
-  }
-
-  // Определение минимального допустимого веса снаряда:
-  const minAllowed = isCrossoverWithMin125 ? 1.25 : (fact > 0 && fact < step ? fact : step);
+  // Определение минимального допустимого веса:
+  // Если пользователь поднял факт меньше шага (например, 1.25 при step 2.5), минимальный вес не должен насильно завышаться.
+  const minAllowed = (fact > 0 && fact < step) ? fact : step;
   let clampedResult = Math.max(minAllowed, isNaN(roundedWeight) ? minAllowed : roundedWeight);
 
   // Защита здравого смысла: при отметках 'очень тяжело' (откат) или 'тяжело' (прибавка 0)
