@@ -288,6 +288,24 @@ export function useWorkoutState() {
   };
 
   /**
+   * Полностью очистить базу данных по весу и сбросить прогресс тренировок
+   */
+  const resetWorkoutData = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEYS.WORKOUT_DATA);
+      localStorage.removeItem(STORAGE_KEYS.CURRENT_CYCLE);
+      localStorage.removeItem(STORAGE_KEYS.CURRENT_WEEK);
+    } catch (e) {
+      console.error("Ошибка очистки localStorage:", e);
+    }
+    setWorkoutData({});
+    setCurrentCycleState(1);
+    setCurrentWeekState(1);
+    setViewCycle(1);
+    setViewWeek(1);
+  };
+
+  /**
    * Обновить факт выполнения упражнения.
    * Ключ для сохранения включает и цикл, и неделю: fact_${cycle}_${week}_${exerciseId}.
    * Защита от NaN: если значение некорректно, сохраняется 0.
@@ -396,6 +414,7 @@ export function useWorkoutState() {
     removeFact,
     getFact,
     completeWeek,
+    resetWorkoutData,
     calculateNextWeekPlan,
     mround,
     getScheme: (exercise, week = viewWeek) => getScheme(exercise, week)
