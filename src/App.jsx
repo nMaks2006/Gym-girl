@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { exercises } from './db.js';
+import { exercises, INITIAL_CYCLE_1_PLAN } from './db.js';
 import { useWorkoutState, WEEK_TITLES, getScheme, calculateNextWeekPlan } from './useWorkoutState.js';
 
 export default function App() {
@@ -157,15 +157,11 @@ export default function App() {
           }
         }
 
-        // Если это 1-й цикл (или нет данных 6-й недели), проверяем факт текущей недели
-        const factOnViewWeek = getFact(ex.id, viewWeek, viewCycle);
-        if (factOnViewWeek && factOnViewWeek.weight !== null && factOnViewWeek.weight !== undefined && factOnViewWeek.weight !== '') {
-          const sanitizedValue = factOnViewWeek.weight.toString().replace(',', '.');
-          const numericValue = parseFloat(sanitizedValue);
-          if (!isNaN(numericValue)) {
-            return numericValue;
-          }
+        // Для 1-го цикла базовый план 1-й недели рассчитывается из исходных данных 6-й недели
+        if (INITIAL_CYCLE_1_PLAN && INITIAL_CYCLE_1_PLAN[ex.id] !== undefined) {
+          return INITIAL_CYCLE_1_PLAN[ex.id];
         }
+
         return null;
       }
 
